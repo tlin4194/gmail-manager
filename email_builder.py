@@ -11,7 +11,7 @@ class EmailBuilder():
         self.message = EmailMessage()
         with open(message_file, 'r') as f:
             self.message.set_content(f.read())
-        # self.message["From"] = sender
+        self.message["From"] = sender
 
     def set_subject(self, subject: str):
         self.message["Subject"] = subject
