@@ -7,19 +7,26 @@ from email.message import EmailMessage
 
 
 class EmailBuilder():
-    def __init__(self, sender: str, message_file: str):
+    def __init__(self, sender: str, recipient: str, message_file: str, subject="", ):
         self.message = EmailMessage()
         with open(message_file, 'r') as f:
-            self.message.set_content(f.read())
+            self.message_template = f.read()
         self.message["From"] = sender
-
-    def set_subject(self, subject: str):
         self.message["Subject"] = subject
+        self.message["To"] = recipient
 
-    def set_receiver(self, email: str):
-        self.message["To"] = email
-
-    def build(self):
+    def build(self, fields: dict = None):
+        message_body = self.message_template
+        if fields:
+            for field, value in fields.items():
+                if field == "Email":
+                    continue
+                message_body = message_body.replace(
+                    f"{{{{{field}}}}}", value, 1)
+        if "{{" in message_body or "}}" in message_body:
+            raise Exception("Email Template missing field value")
+        self.message.set_content(message_body)
+        print(self)
         # encoded message
         encoded_message = base64.urlsafe_b64encode(
             self.message.as_bytes()).decode()
@@ -31,8 +38,8 @@ class EmailBuilder():
 
 if __name__ == "__main__":
     test = EmailBuilder(sender="test@gmail.com",
-                        message_file="test/email_message.txt")
-    test.set_subject("TEST")
-    test.set_receiver("test@gmail.com")
-    print(test)
-    print(test.build())
+                        recipient="test@gmail.com",
+                        message_file="test/email_message.txt",
+                        subject="TEST")
+    print(test.build(
+        fields={"Name": "Bob", "Topic": "Topic A", "Meeting Date": "Wednesday 11AM"}))

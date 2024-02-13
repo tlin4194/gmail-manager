@@ -89,7 +89,7 @@ if __name__ == "__main__":
     g = GmailService(".credentials.json")
     g.get_labels()
     test_email = EmailBuilder(sender="test@gmail.com",
-                              message_file="test/email_message.txt")
-    test_email.set_subject("TEST")
-    test_email.set_receiver("test@gmail.com")
+                              recipient="test@gmail.com",
+                              message_file="test/email_message.txt",
+                              subject="TEST")
     g.send_email(test_email.build())
